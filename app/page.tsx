@@ -59,10 +59,10 @@ export default function SolarevoLanding() {
           </p>
 
           {/* CTA Primary Button */}
-          <div className="pt-6">
+          <div className="pt-6 px-4 md:px-0">
             <button
               onClick={() => document.getElementById('lead-capture')?.scrollIntoView({ behavior: 'smooth' })}
-              className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-8 rounded-lg shadow-2xl transition-all duration-300 hover:shadow-orange-500/50 hover:scale-105"
+              className="group relative flex w-full md:inline-flex md:w-auto items-center justify-center text-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-base md:text-lg py-3.5 px-6 md:py-4 md:px-8 rounded-lg shadow-2xl transition-all duration-300 hover:shadow-orange-500/50 hover:scale-105"
             >
               Criar Minha Conta Gratuita
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
