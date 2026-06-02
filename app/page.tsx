@@ -296,7 +296,7 @@ export default function SolarevoLanding() {
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Testimonio */}
+            {/* Testemunho */}
             <div className="bg-gradient-to-br from-orange-900/20 to-slate-900/50 border border-orange-500/40 rounded-2xl p-8">
               <div className="mb-6">
                 <p className="text-orange-400 text-lg font-semibold mb-2">Testimonio Real</p>
