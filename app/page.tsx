@@ -140,19 +140,24 @@ export default function SolarevoLanding() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Pilar 1: Cérebro */}
-            <div className="group relative bg-gradient-to-b from-blue-900/20 to-slate-900/50 border border-blue-500/30 rounded-2xl p-8 hover:border-blue-500/60 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
-              <div className="mb-6 inline-block bg-blue-500/20 p-3 rounded-lg">
-                <Zap className="w-8 h-8 text-blue-400" />
+            <div className="group relative bg-gradient-to-b from-blue-900/20 to-slate-900/50 border border-blue-500/30 rounded-2xl p-8 hover:border-blue-500/60 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 flex flex-col justify-between">
+              <div>
+                <div className="mb-6 inline-block bg-blue-500/20 p-3 rounded-lg">
+                  <Zap className="w-8 h-8 text-blue-400" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-white">O App Que O Cliente Ama</h3>
+                <p className="text-slate-300 mb-6 font-semibold">
+                  Entregue valor diário. O cliente acessa um painel simples para ver a economia gerada, <span className="text-blue-400">com a SUA logomarca</span> sempre em destaque na tela dele.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-white">O App Que O Cliente Ama</h3>
-              <p className="text-slate-300 mb-6 font-semibold">
-                Entregue valor diário. O cliente acessa um painel simples para ver a economia gerada, <span className="text-blue-400">com a SUA logomarca</span> sempre em destaque na tela dele.
-              </p>
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                <p className="text-sm text-slate-400 mb-2">Exemplo real:</p>
-                <p className="text-lg font-mono text-blue-300">158 × 0,7kWp = 110,6kWp</p>
-                <p className="text-lg font-mono text-green-400">R$ 243.320,00</p>
-                <p className="text-xs text-slate-500 mt-2">Redução de 99,9% vs. 4 horas manuais</p>
+
+              {/* Print Real do Aplicativo */}
+              <div className="overflow-hidden rounded-xl border border-slate-700/50 shadow-2xl mt-4 bg-white">
+                <img 
+                  src="/exemplo-real.png" 
+                  alt="Exemplo Real do Aplicativo EnerTrack" 
+                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
             </div>
 
