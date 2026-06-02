@@ -198,13 +198,13 @@ export default function SolarevoLanding() {
       </section>
 
       {/* ===== OFERTA IRRECUSÁVEL SECTION ===== */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-950 to-slate-900">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-bold text-center mb-16">
-            Como Funciona a Nossa Parceria <span className="text-green-400">(O Ganha-Ganha)</span>
-          </h2>
+<section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-950 to-slate-900">
+  <div className="max-w-6xl mx-auto">
+    <h2 className="text-4xl sm:text-5xl font-bold text-center mb-16">
+      Como Funciona a Nossa Parceria <span className="text-green-400 text-2xl sm:text-3xl font-medium whitespace-nowrap">(O Ganha-Ganha)</span>
+    </h2>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left: O Modelo */}
             <div className="space-y-8">
               {/* A Isca B2B */}
