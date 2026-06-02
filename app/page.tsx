@@ -28,7 +28,7 @@ export default function SolarevoLanding() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
       {/* ===== HERO SECTION ===== */}
-      <section className="relative min-h-screen h-auto md:h-screen flex items-center justify-center pt-28 pb-20 md:py-0 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center pt-28 pb-20 md:pt-40 md:pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Background Gradient Mesh */}
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl"></div>
