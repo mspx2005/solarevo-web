@@ -38,7 +38,7 @@ export default function SolarevoLanding() {
         <div className="relative max-w-5xl mx-auto text-center space-y-8 animate-fadeIn">
           {/* Logo/Badge */}
           <div className="inline-block bg-white/10 backdrop-blur border border-orange-500/30 rounded-full px-4 py-2">
-            <p className="text-sm font-medium text-orange-400">Incubação TecVitória | 2026</p>
+            <p className="text-sm font-medium text-orange-400">⚡ Parceria Ganha-Ganha para Integradores Solares</p>
           </div>
 
           {/* Main Headline */}
@@ -47,7 +47,9 @@ export default function SolarevoLanding() {
               Transforme cada Usina Instalada em uma Máquina de Vendas Recorrentes.
             </span>
             <br />
-            <span className="text-white">A plataforma inteligente (e gratuita) que conecta você ao seu cliente todos os dias.</span>
+            <span className="text-white">
+              A plataforma inteligente <span className="text-orange-400 font-extrabold whitespace-nowrap">100% Gratuita</span> que conecta você ao seu cliente todos os dias.
+            </span>
           </h1>
 
           {/* Subheadline */}
