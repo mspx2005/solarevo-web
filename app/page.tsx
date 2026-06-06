@@ -8,23 +8,46 @@ export default function SolarevoLanding() {
   const [submitted, setSubmitted] = useState(false);
   const [scrollY, setScrollY] = useState(0);
 
+  // Controle de carregamento para o botão não ser clicado duas vezes
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // A ÚNICA função oficial de envio para a API e Supabase
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: formData.name,       
+          email: formData.email,
+          whatsapp: formData.phone   
+        })
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+        setFormData({ name: '', email: '', phone: '' });
+      } else {
+        alert("Ops! Ocorreu um erro ao enviar seu contato. Tente novamente.");
+      }
+    } catch (error) {
+      console.error("Erro na comunicação:", error);
+      alert("Erro de conexão ao tentar agendar a demonstração.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Mantido o seu efeito visual de rolagem da página original
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Integrar com SendPulse API
-    console.log('Lead Capture:', formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setFormData({ name: '', email: '', phone: '' });
-      setSubmitted(false);
-    }, 3000);
-  };
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
       {/* ===== HERO SECTION ===== */}
@@ -397,10 +420,11 @@ export default function SolarevoLanding() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-lg shadow-2xl transition-all duration-300 hover:shadow-orange-500/50 hover:scale-105 flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-lg shadow-2xl transition-all duration-300 hover:shadow-orange-500/50 hover:scale-105 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Agendar Demo Gratuita
-                  <ArrowRight className="w-5 h-5" />
+                  {isSubmitting ? 'Agendando...' : 'Agendar Demo Gratuita'}
+                  {!isSubmitting && <ArrowRight className="w-5 h-5" />}
                 </button>
 
                 <p className="text-center text-xs text-slate-500 mt-4">
