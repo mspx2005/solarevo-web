@@ -1,26 +1,31 @@
 @import "tailwindcss";
 
+@theme {
+  /* Paleta EnerTrack Oficial */
+  --color-enertrack-orange-main: #fe6e00;
+  --color-enertrack-orange-secondary: #ff8b1a;
+  --color-enertrack-orange-dark: #c53c00;
+  
+  --color-enertrack-slate-950: #0a0a0a;
+  --color-enertrack-slate-900: #111827;
+  --color-enertrack-slate-800: #1f2937;
+  
+  --color-enertrack-green-success: #00c758;
+  --color-enertrack-green-light: #05df72;
+  
+  --color-enertrack-blue-accent: #3080ff;
+  --color-enertrack-blue-dark: #162456;
+  
+  --color-enertrack-white: #ffffff;
+  --color-enertrack-gray-light: #f8fafc;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: var(--color-enertrack-slate-950);
+  --foreground: var(--color-enertrack-white);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
