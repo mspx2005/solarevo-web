@@ -2,6 +2,12 @@
 -- SOLAREVO ENERTRACK | VERIFICAÇÃO SEC-001 e ESC-001 (somente leitura)
 -- Revisão 2 (PR #1): resultados esperados explícitos por papel e por índice;
 -- inclusão de PUBLIC e da ACL textual (ressalvas do Copilot, item 6).
+-- Revisão 3 (PR #1): PUBLIC comprovado por dois métodos independentes
+--   public_executa .. has_function_privilege('public', ...): forma documentada
+--                     pelo PostgreSQL para o pseudo-papel PUBLIC
+--   public_na_acl ... leitura direta da ACL via aclexplode (grantee = 0 é
+--                     PUBLIC), incluindo a ACL padrão quando proacl é nula
+--   As duas colunas devem sempre concordar.
 -- -----------------------------------------------------------------------------
 -- Executar e guardar o resultado em três momentos, em cada ambiente:
 --   M0  LINHA DE BASE ... antes da migration
@@ -12,6 +18,9 @@
 -- 1) Privilégios efetivos das funções
 select p.proname                                                  as funcao,
        has_function_privilege('public',        p.oid, 'EXECUTE') as public_executa,
+       exists (select 1
+               from aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
+               where a.grantee = 0 and a.privilege_type = 'EXECUTE')  as public_na_acl,
        has_function_privilege('anon',          p.oid, 'EXECUTE') as anon_executa,
        has_function_privilege('authenticated', p.oid, 'EXECUTE') as authenticated_executa,
        has_function_privilege('service_role',  p.oid, 'EXECUTE') as service_role_executa,
@@ -25,6 +34,7 @@ where n.nspname = 'public'
 order by 1;
 
 -- Resultado esperado em M1 (após migration):
+--   (public = public_executa e public_na_acl, que devem concordar)
 --   funcao                         public  anon   authenticated  service_role
 --   get_os_instalador              false   false  true           true
 --   get_instaladores               false   false  true           true
@@ -34,7 +44,8 @@ order by 1;
 --   get_os_operacional_instalador  igual a M0 em todas as colunas (anon = false)
 --
 -- Resultado esperado em M2 (após rollback):
---   public, anon, authenticated e service_role idênticos a M0 nas seis funções.
+--   public_executa, public_na_acl, anon, authenticated e service_role idênticos
+--   a M0 nas seis funções.
 
 -- 2) Índices: definição completa (coluna, método e unicidade)
 select tablename, indexname, indexdef
