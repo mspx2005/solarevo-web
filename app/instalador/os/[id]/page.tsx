@@ -1,14 +1,28 @@
 'use client';
 
 import React, { useEffect, useState, use, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
-import { Loader2, ArrowLeft, MapPin, Package, Play, CheckCircle2, Camera, Clock, AlertTriangle, FileCheck, ListChecks, Calendar } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+
+import {
+  Loader2,
+  ArrowLeft,
+  MapPin,
+  Package,
+  Play,
+  CheckCircle2,
+  Camera,
+  Clock,
+  AlertTriangle,
+  FileCheck,
+  ListChecks,
+  Calendar
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function ExecucaoOS({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
   const projectId = unwrappedParams.id;
-
+const [supabase] = useState(() => createClient());
   const [projeto, setProjeto] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -20,30 +34,83 @@ export default function ExecucaoOS({ params }: { params: Promise<{ id: string }>
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    async function fetchOS() {
-      const { data, error } = await supabase.from('projetos').select('*').eq('id', projectId).single();
-      if (!error && data) {
-        setProjeto(data);
-        if (data.etapas_instalacao) {
-          try {
-            const parsed = JSON.parse(data.etapas_instalacao);
-            if (Array.isArray(parsed)) setEtapas(parsed);
-          } catch (e) {
-            console.error("Erro ao ler etapas");
-          }
-        }
+  let ativo = true;
+
+  async function fetchOS() {
+    setIsLoading(true);
+
+    const { data, error } = await supabase.rpc(
+      'get_os_operacional_instalador',
+      {
+        p_projeto_id: Number(projectId)
       }
+    );
+
+    if (!ativo) return;
+
+    if (error || !data || data.length === 0) {
+      console.error('Erro ao carregar OS operacional:', error);
+      setProjeto(null);
+      setEtapas([]);
       setIsLoading(false);
+      return;
     }
-    fetchOS();
-  }, [projectId]);
+
+    const osOperacional = data[0];
+
+    setProjeto(osOperacional);
+
+    if (osOperacional.etapas_instalacao) {
+      try {
+        const parsed = JSON.parse(osOperacional.etapas_instalacao);
+        setEtapas(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        console.error('Erro ao interpretar etapas da instalação');
+        setEtapas([]);
+      }
+    } else {
+      setEtapas([]);
+    }
+
+    setIsLoading(false);
+  }
+
+  fetchOS();
+
+  return () => {
+    ativo = false;
+  };
+}, [projectId, supabase]);
 
   const handleMudarStatus = async (novoStatus: string) => {
-    setIsUpdating(true);
-    await supabase.from('projetos').update({ status_instalacao: novoStatus }).eq('id', projectId);
-    setProjeto((prev: any) => ({ ...prev, status_instalacao: novoStatus }));
+  setIsUpdating(true);
+
+  const { data, error } = await supabase.rpc(
+    'atualizar_status_instalacao',
+    {
+      p_projeto_id: Number(projectId),
+      p_novo_status: novoStatus
+    }
+  );
+
+  if (error || !data || data.length === 0) {
+    console.error('Erro ao atualizar status da instalação:', error);
+    alert(error?.message ?? 'Não foi possível atualizar o status.');
     setIsUpdating(false);
-  };
+    return;
+  }
+
+  const resultado = data[0];
+
+  setProjeto((prev: any) => ({
+    ...prev,
+    status_instalacao: resultado.status_atual,
+    data_inicio_instalacao: resultado.data_inicio_instalacao,
+    data_fim_instalacao: resultado.data_fim_instalacao
+  }));
+
+  setIsUpdating(false);
+};
 
   // 🧠 O MOTOR DE BUSINESS INTELLIGENCE (Grava Data e Hora Real)
   const handleToggleEtapa = async (id: string) => {
@@ -60,8 +127,39 @@ export default function ExecucaoOS({ params }: { params: Promise<{ id: string }>
       return etapa;
     });
 
-    setEtapas(novasEtapas); // Atualiza na tela instantaneamente
-    await supabase.from('projetos').update({ etapas_instalacao: JSON.stringify(novasEtapas) }).eq('id', projectId);
+    setEtapas(novasEtapas);
+
+const { data, error } = await supabase.rpc(
+  'atualizar_etapas_instalacao',
+  {
+    p_projeto_id: Number(projectId),
+    p_etapas_instalacao: JSON.stringify(novasEtapas)
+  }
+);
+
+if (error) {
+  console.error(
+    'Erro ao atualizar etapas:',
+    error
+  );
+
+  return;
+}
+
+if (data && data.length > 0) {
+  try {
+    setEtapas(
+      JSON.parse(
+        data[0].etapas_instalacao
+      )
+    );
+  } catch (e) {
+    console.error(
+      'Erro ao ler retorno da RPC:',
+      e
+    );
+  }
+}
   };
 
   const handleUploadFoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +171,25 @@ export default function ExecucaoOS({ params }: { params: Promise<{ id: string }>
       const fileName = `foto_${Date.now()}.${file.name.split('.').pop()}`;
       const filePath = `instalacao/${projectId}/${fileName}`;
       await supabase.storage.from('arquivos-projetos').upload(filePath, file);
+      const {
+  data: publicUrlData
+} = supabase.storage
+  .from('arquivos-projetos')
+  .getPublicUrl(filePath);
+
+const { data, error } = await supabase.rpc(
+  'registrar_evidencia_instalacao',
+  {
+    p_projeto_id: Number(projectId),
+    p_nome_arquivo: file.name,
+    p_url_arquivo: publicUrlData.publicUrl
+  }
+);
+
+console.log(
+  'TESTE EVIDENCIA FASE 6A:',
+  { data, error }
+);
       alert("📸 Foto do dia enviada com sucesso para a central!");
     } catch (error) {
       alert("Erro ao enviar foto. Tente novamente.");
@@ -117,7 +234,7 @@ export default function ExecucaoOS({ params }: { params: Promise<{ id: string }>
           <Link href="/instalador" className="p-2 bg-slate-800 rounded-lg text-white active:scale-95 transition-transform"><ArrowLeft className="w-6 h-6" /></Link>
           <div>
             <h1 className="text-lg font-bold text-white leading-tight truncate w-64">OS: {projeto.cliente_nome?.split(' ')[0]}</h1>
-            <p className="text-blue-400 text-xs font-bold uppercase tracking-wider mt-0.5">#{String(projeto.id).substring(0,8)}</p>
+            <p className="text-blue-400 text-xs font-bold uppercase tracking-wider mt-0.5">#{String(projeto.projeto_id)}</p>
           </div>
         </div>
       </div>

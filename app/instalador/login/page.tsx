@@ -53,7 +53,7 @@ export default function LoginInstaladorPage() {
       return;
     }
 
-    router.push("/instalador");
+    router.push("/instalador/dashboard");
     router.refresh();
   }
   // =========================== FIM — não alterar =============================

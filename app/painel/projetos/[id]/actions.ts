@@ -350,6 +350,31 @@ export async function uploadProposta(formData: FormData) {
     setNumero("bateria_qtde", dadosExtraidos.bateria_qtde);
     setNumero("bateria_potencia_w", dadosExtraidos.bateria_potencia_w);
 
+    // ============================================================
+    // MELHORIA-001 — POTÊNCIA OFICIAL DA USINA
+    // Regra de negócio aprovada: quando o kit real do fornecedor
+    // informa quantidade e potência dos módulos, a potência oficial
+    // do projeto passa a ser calculada a partir do kit, substituindo
+    // a estimativa comercial obtida na leitura da fatura:
+    //
+    //   potencia_kwp = (modulo_qtde × modulo_potencia_w) / 1000
+    //
+    // Ex.: 155 módulos × 710 W = 110050 W = 110,05 kWp
+    // Só recalcula se AMBOS os valores forem válidos e > 0.
+    // ============================================================
+    const moduloQtdeNum = Number(dadosExtraidos.modulo_qtde);
+    const moduloPotenciaNum = Number(dadosExtraidos.modulo_potencia_w);
+    if (
+      !isNaN(moduloQtdeNum) &&
+      moduloQtdeNum > 0 &&
+      !isNaN(moduloPotenciaNum) &&
+      moduloPotenciaNum > 0
+    ) {
+      // Arredondamento a 2 casas para evitar artefatos de float
+      camposUpdate.potencia_kwp =
+        Math.round((moduloQtdeNum * moduloPotenciaNum) / 10) / 100;
+    }
+
     if (Object.keys(camposUpdate).length === 0) {
       revalidatePath(`/painel/projetos/${projetoId}`);
       return {

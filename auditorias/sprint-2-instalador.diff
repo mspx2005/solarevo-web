@@ -1,0 +1,162 @@
+[1mdiff --git a/app/instalador/page.tsx b/app/instalador/page.tsx[m
+[1mindex 868d8cc..98b7893 100644[m
+[1m--- a/app/instalador/page.tsx[m
+[1m+++ b/app/instalador/page.tsx[m
+[36m@@ -1,132 +1,24 @@[m
+[31m-'use client';[m
+[31m-[m
+[31m-import React, { useEffect, useState } from 'react';[m
+[31m-import { supabase } from '@/lib/supabase';[m
+[31m-import { Loader2, HardHat, MapPin, CalendarDays, ArrowRight, CheckCircle2, Clock } from 'lucide-react';[m
+[31m-import Link from 'next/link';[m
+[31m-[m
+[31m-export default function InstaladorDashboard() {[m
+[31m-  const [projetos, setProjetos] = useState<any[]>([]);[m
+[31m-  const [isLoading, setIsLoading] = useState(true);[m
+[31m-[m
+[31m-  useEffect(() => {[m
+[31m-    async function fetchObras() {[m
+[31m-      // Puxar projetos que já têm o Cronograma iniciado (exclui os que são só lead/proposta)[m
+[31m-      const { data, error } = await supabase[m
+[31m-        .from('projetos')[m
+[31m-        .select('*')[m
+[31m-        .not('data_inicio_instalacao', 'is', null)[m
+[31m-        .order('data_inicio_instalacao', { ascending: true });[m
+[31m-[m
+[31m-      if (!error && data) {[m
+[31m-        setProjetos(data);[m
+[31m-      }[m
+[31m-      setIsLoading(false);[m
+[31m-    }[m
+[31m-    fetchObras();[m
+[31m-  }, []);[m
+[31m-[m
+[31m-  if (isLoading) {[m
+[31m-    return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-blue-500" /></div>;[m
+[31m-  }[m
+[31m-[m
+[31m-  // Separar obras em andamento/pendentes das concluídas[m
+[31m-  const obrasAtivas = projetos.filter(p => p.status_instalacao !== 'Concluído');[m
+[31m-  const obrasConcluidas = projetos.filter(p => p.status_instalacao === 'Concluído');[m
+[31m-[m
+[31m-  return ([m
+[31m-    <div className="min-h-screen bg-slate-950 pb-20">[m
+[31m-      [m
+[31m-      {/* CABEÇALHO MOBILE (Fixo no topo) */}[m
+[31m-      <div className="bg-slate-900 border-b border-slate-800 p-6 sticky top-0 z-10 shadow-lg">[m
+[31m-        <div className="flex items-center gap-3">[m
+[31m-          <div className="bg-blue-500 p-3 rounded-xl shadow-lg shadow-blue-500/20">[m
+[31m-            <HardHat className="w-7 h-7 text-white" />[m
+[31m-          </div>[m
+[31m-          <div>[m
+[31m-            <h1 className="text-2xl font-black text-white leading-tight">App de Campo</h1>[m
+[31m-            <p className="text-blue-400 font-medium text-sm mt-0.5">Equipa de Instalação</p>[m
+[31m-          </div>[m
+[31m-        </div>[m
+[31m-      </div>[m
+[31m-[m
+[31m-      <div className="p-4 space-y-6 max-w-lg mx-auto mt-4">[m
+[31m-        [m
+[31m-        {/* RESUMO RÁPIDO */}[m
+[31m-        <div className="grid grid-cols-2 gap-4">[m
+[31m-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center">[m
+[31m-            <Clock className="w-6 h-6 text-orange-500 mb-2" />[m
+[31m-            <p className="text-3xl font-black text-white">{obrasAtivas.length}</p>[m
+[31m-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1">Pendentes</p>[m
+[31m-          </div>[m
+[31m-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center">[m
+[31m-            <CheckCircle2 className="w-6 h-6 text-emerald-500 mb-2" />[m
+[31m-            <p className="text-3xl font-black text-white">{obrasConcluidas.length}</p>[m
+[31m-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1">Concluídas</p>[m
+[31m-          </div>[m
+[31m-        </div>[m
+[31m-[m
+[31m-        {/* LISTA DE OBRAS ATIVAS */}[m
+[31m-        <div>[m
+[31m-          <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 ml-1">Obras Atribuídas</h2>[m
+[31m-          [m
+[31m-          <div className="space-y-4">[m
+[31m-            {obrasAtivas.length === 0 ? ([m
+[31m-              <div className="bg-slate-900/50 border border-slate-800 border-dashed rounded-2xl p-8 text-center">[m
+[31m-                <CheckCircle2 className="w-12 h-12 text-slate-600 mx-auto mb-3 opacity-50" />[m
+[31m-                <p className="text-slate-400 font-medium">Nenhuma obra pendente.</p>[m
+[31m-                <p className="text-sm text-slate-500 mt-1">Pode descansar!</p>[m
+[31m-              </div>[m
+[31m-            ) : ([m
+[31m-              obrasAtivas.map((obra) => {[m
+[31m-                // Lógica de endereço para geração remota[m
+[31m-                const enderecoObra = obra.os_mesmo_endereco !== false [m
+[31m-                  ? `${obra.cliente_cidade || 'Cidade'}/${obra.cliente_estado || 'UF'}`[m
+[31m-                  : `${obra.os_cidade || 'Cidade Remota'}/${obra.os_estado || 'UF'}`;[m
+[31m-[m
+[31m-                return ([m
+[31m-                  <Link href={`/instalador/os/${obra.id}`} key={obra.id} className="block bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-blue-500 transition-colors relative overflow-hidden group active:scale-95">[m
+[31m-                    [m
+[31m-                    {/* Tarja de Status */}[m
+[31m-                    <div className={`absolute top-0 left-0 w-1.5 h-full ${obra.status_instalacao === 'Em Andamento' ? 'bg-orange-500' : 'bg-blue-500'}`}></div>[m
+[31m-[m
+[31m-                    <div className="pl-2">[m
+[31m-                      <div className="flex justify-between items-start mb-3">[m
+[31m-                        <div>[m
+[31m-                          <p className="text-xs font-bold text-blue-500 mb-1 uppercase tracking-wider">OS #{String(obra.id).substring(0,6)}</p>[m
+[31m-                          <h3 className="text-lg font-bold text-white leading-tight">{obra.cliente_nome}</h3>[m
+[31m-                        </div>[m
+[31m-                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${obra.status_instalacao === 'Em Andamento' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-slate-800 text-slate-300'}`}>[m
+[31m-                          {obra.status_instalacao || 'Pendente'}[m
+[31m-                        </span>[m
+[31m-                      </div>[m
+[31m-[m
+[31m-                      <div className="space-y-2 mt-4">[m
+[31m-                        <div className="flex items-center gap-2 text-sm text-slate-300">[m
+[31m-                          <CalendarDays className="w-4 h-4 text-slate-500 shrink-0" />[m
+[31m-                          <span>Início: <strong className="text-white">{obra.data_inicio_instalacao ? new Date(obra.data_inicio_instalacao + 'T00:00:00').toLocaleDateString('pt-BR') : 'A definir'}</strong></span>[m
+[31m-                        </div>[m
+[31m-                        <div className="flex items-start gap-2 text-sm text-slate-300">[m
+[31m-                          <MapPin className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />[m
+[31m-                          <span className="line-clamp-1">{enderecoObra}</span>[m
+[31m-                        </div>[m
+[31m-                      </div>[m
+[31m-[m
+[31m-                      <div className="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">[m
+[31m-                        <span className="text-blue-400 text-sm font-semibold">Abrir Ordem de Serviço</span>[m
+[31m-                        <div className="bg-blue-500/10 p-2 rounded-full group-hover:bg-blue-500 transition-colors">[m
+[31m-                          <ArrowRight className="w-4 h-4 text-blue-400 group-hover:text-white" />[m
+[31m-                        </div>[m
+[31m-                      </div>[m
+[31m-                    </div>[m
+[31m-                  </Link>[m
+[31m-                )[m
+[31m-              })[m
+[31m-            )}[m
+[31m-          </div>[m
+[31m-        </div>[m
+[31m-[m
+[31m-      </div>[m
+[31m-    </div>[m
+[31m-  );[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32mimport { redirect } from "next/navigation";[m
+[32m+[m
+[32m+[m[32m// =============================================================================[m
+[32m+[m[32m// SPRINT 2 — MÓDULO INSTALADOR[m
+[32m+[m[32m// Rota: /instalador[m
+[32m+[m[32m// Tipo: Server Component (Next.js App Router)[m
+[32m+[m[32m//[m
+[32m+[m[32m// Este arquivo substitui integralmente o fluxo legado client-side.[m
+[32m+[m[32m// A rota /instalador agora atua exclusivamente como ponto de entrada,[m
+[32m+[m[32m// redirecionando de forma imediata e server-side (HTTP 307) para o[m
+[32m+[m[32m// fluxo oficial do instalador em /instalador/dashboard.[m
+[32m+[m[32m//[m
+[32m+[m[32m// Conforme DOCUMENTO 4 (Arquitetura Consolidada):[m
+[32m+[m[32m// - Nenhuma consulta ao banco de dados é realizada neste arquivo.[m
+[32m+[m[32m// - Nenhum código é executado no client (zero JavaScript enviado ao browser).[m
+[32m+[m[32m// - A autenticação, autorização (role + ativo) e carga de dados permanecem[m
+[32m+[m[32m//   sob responsabilidade exclusiva de /instalador/dashboard (100% server-side).[m
+[32m+[m[32m// =============================================================================[m
+[32m+[m
+[32m+[m[32mexport const dynamic = "force-dynamic";[m
+[32m+[m
+[32m+[m[32mexport default function InstaladorPage() {[m
+[32m+[m[32m  redirect("/instalador/dashboard");[m
+[32m+[m[32m}[m

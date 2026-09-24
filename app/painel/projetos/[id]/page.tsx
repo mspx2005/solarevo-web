@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, Zap, FileText, X, Calculator, SunMedium, Cpu, Uploa
 import Link from 'next/link';
 import { gerarDocumentoWord } from '@/lib/geradorWord';
 import { UploadFaturaButton } from './_components/UploadFaturaButton';
+import { GerarPropostaWordButton } from "./_components/GerarPropostaWordButton";
 import { UploadPropostaButton } from './_components/UploadPropostaButton';
 
 export default function DetalhesProjeto({ params }: { params: Promise<{ id: string }> }) {
@@ -66,7 +67,16 @@ export default function DetalhesProjeto({ params }: { params: Promise<{ id: stri
         setProjeto(data);
         if (data.consumo_mensal_kwh) setConsumoInput(data.consumo_mensal_kwh.toString());
         if (data.potencia_kwp) setPotenciaInput(data.potencia_kwp.toString());
-        setInversorCustom(data.potencia_kwp ? (data.potencia_kwp / 1.50).toFixed(1) : '');
+if (data.modulo_potencia_w) {
+setModuloW(data.modulo_potencia_w);
+}
+
+if (data.inversor_potencia_w) {
+setInversorCustom(
+(data.inversor_potencia_w / 1000).toFixed(1)
+);
+}
+
         setDadosCliente({
           cnpj_cpf: data.cliente_cnpj_cpf || '', endereco: data.cliente_endereco || '', numero: data.cliente_numero || '',
           bairro: data.cliente_bairro || '', cidade: data.cliente_cidade || '', estado: data.cliente_estado || '', cep: data.cliente_cep || ''
@@ -126,7 +136,23 @@ export default function DetalhesProjeto({ params }: { params: Promise<{ id: stri
   };
   const handleSalvarFinanceiro = async (e: React.FormEvent) => {
     e.preventDefault(); setIsSaving(true);
-    const updates = { preco_venda: parseFloat(dadosFinanceiros.preco_venda) || null, tarifa_energia: parseFloat(dadosFinanceiros.tarifa_energia) || null };
+    const precoVenda =
+  parseFloat(
+    dadosFinanceiros.preco_venda
+      .replace(/\./g, '')
+      .replace(',', '.')
+  ) || null;
+
+const tarifaEnergia =
+  parseFloat(
+    dadosFinanceiros.tarifa_energia
+      .replace(',', '.')
+  ) || null;
+
+const updates = {
+  preco_venda: precoVenda,
+  tarifa_energia: tarifaEnergia
+};
     await supabase.from('projetos').update(updates).eq('id', projectId);
     setProjeto((prev: any) => ({...prev, ...updates}));
     setIsFinanceiroModalOpen(false); setIsSaving(false);
@@ -193,9 +219,25 @@ export default function DetalhesProjeto({ params }: { params: Promise<{ id: stri
   }
 
   const potenciaKwp = projeto?.potencia_kwp || 0;
-  const qtdPaineis = potenciaKwp ? Math.ceil((potenciaKwp * 1000) / moduloW) : 0;
-  const inversorFinalVal = parseFloat(inversorCustom) || (potenciaKwp / 1.50);
 
+const moduloPotencia =
+projeto?.modulo_potencia_w || moduloW;
+
+const qtdPaineis =
+projeto?.modulo_qtde ||
+(
+potenciaKwp
+? Math.ceil((potenciaKwp * 1000) / moduloPotencia)
+: 0
+);
+
+const inversorFinalVal =
+projeto?.inversor_potencia_w
+? projeto.inversor_potencia_w / 1000
+: (
+parseFloat(inversorCustom) ||
+(potenciaKwp / 1.50)
+);
   return (
  <div className="space-y-4 md:space-y-6 relative pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
@@ -237,7 +279,7 @@ export default function DetalhesProjeto({ params }: { params: Promise<{ id: stri
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4 border-b border-slate-800 pb-3"><Calculator className="w-5 h-5 text-orange-500" /><h2 className="text-lg font-semibold text-white">Dimensionamento Automático</h2></div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-slate-800/60 rounded-lg p-3 border border-slate-700/60"><div className="flex items-center gap-2 text-slate-400 mb-1"><SunMedium className="w-4 h-4 text-orange-400" /><span className="text-xs">Placas ({moduloW}W)</span></div><p className="text-xl font-bold text-white">{qtdPaineis} <span className="text-xs text-slate-400">un</span></p></div>
+                <div className="bg-slate-800/60 rounded-lg p-3 border border-slate-700/60"><div className="flex items-center gap-2 text-slate-400 mb-1"><SunMedium className="w-4 h-4 text-orange-400" /><span className="text-xs">Placas ({moduloPotencia}W)</span></div><p className="text-xl font-bold text-white">{qtdPaineis} <span className="text-xs text-slate-400">un</span></p></div>
                 <div className="bg-slate-800/60 rounded-lg p-3 border border-slate-700/60"><div className="flex items-center gap-2 text-slate-400 mb-1"><Cpu className="w-4 h-4 text-orange-400" /><span className="text-xs">Inversor</span></div><p className="text-xl font-bold text-white">{inversorFinalVal.toFixed(1)} <span className="text-xs text-slate-400">kW</span></p></div>
                 <div className="bg-slate-800/60 rounded-lg p-3 border border-slate-700/60"><div className="flex items-center gap-2 text-slate-400 mb-1"><Zap className="w-4 h-4 text-orange-400" /><span className="text-xs">Potência</span></div><p className="text-xl font-bold text-white">{potenciaKwp} <span className="text-xs text-slate-400">kWp</span></p></div>
               </div>
@@ -246,7 +288,9 @@ export default function DetalhesProjeto({ params }: { params: Promise<{ id: stri
               <div className="flex items-center gap-2 mb-4 border-b border-slate-800 pb-3"><FileText className="w-5 h-5 text-orange-500" /><h2 className="text-lg font-semibold text-white">Gerador de Propostas</h2></div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <input type="file" ref={wordInputRef} onChange={handleGerarWordCustomizado} accept=".docx" className="hidden" />
-                <button onClick={() => wordInputRef.current?.click()} className="flex-1 bg-slate-800 hover:bg-slate-700 text-blue-400 font-medium py-4 rounded-lg flex flex-col items-center justify-center gap-2 border border-slate-700 transition-colors"><FileBox className="w-6 h-6" /><span>Gerar Word Customizado</span></button>
+                <button onClick={() => wordInputRef.current?.click()} className="flex-1 bg-slate-800 hover:bg-slate-700 text-blue-400 font-medium py-4 rounded-lg flex flex-col items-center justify-center gap-2 border border-slate-700 transition-colors"><FileBox className="w-6 h-6" /><span>Gerar Word Customizado</span></button> <div className="flex-1">
+  <GerarPropostaWordButton projetoId={Number(projectId)} />
+</div>
                 <Link href={`/painel/projetos/${projectId}/proposta`} className="flex-1 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 rounded-lg flex flex-col items-center justify-center gap-2 shadow-lg shadow-orange-500/20 transition-all"><FileText className="w-6 h-6" /><span>Ver Proposta Web</span></Link>
               </div>
             </div>
@@ -358,6 +402,13 @@ export default function DetalhesProjeto({ params }: { params: Promise<{ id: stri
                   </div>
                 )}
               </div>
+              <Link
+  href={`/painel/projetos/${projectId}/atribuir-instalador`}
+  className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-600/20"
+>
+  <User className="w-5 h-5" />
+  Atribuir Instalador
+</Link>
               <button type="submit" disabled={isSaving} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2">
                 {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><CheckCircle2 className="w-5 h-5" /> Salvar Cronograma & OS</>}
               </button>
@@ -367,7 +418,7 @@ export default function DetalhesProjeto({ params }: { params: Promise<{ id: stri
       )}
 
       {isDadosModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-2xl"><div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold text-white">Dados Cadastrais</h3><button onClick={() => setIsDadosModalOpen(false)} className="text-slate-400"><X className="w-6 h-6" /></button></div><form onSubmit={handleSalvarDadosCliente} className="space-y-4"><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="md:col-span-2"><input type="text" placeholder="CPF/CNPJ" value={dadosCliente.cnpj_cpf} onChange={(e) => setDadosCliente({...dadosCliente, cnpj_cpf: e.target.value})} className="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white" /></div><div><input type="text" placeholder="Endereço" value={dadosCliente.endereco} onChange={(e) => setDadosCliente({...dadosCliente, endereco: e.target.value})} className="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white" /></div><div><input type="text" placeholder="Número" value={dadosCliente.numero} onChange={(e) => setDadosCliente({...dadosCliente, numero: e.target.value})} className="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white" /></div><div><input type="text" placeholder="Bairro" value={dadosCliente.bairro} onChange={(e) => setDadosCliente({...dadosCliente, bairro: e.target.value})} className="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white" /></div><div><input type="text" placeholder="Cidade" value={dadosCliente.cidade} onChange={(e) => setDadosCliente({...dadosCliente, cidade: e.target.value})} className="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white" /></div></div><div className="flex gap-3 pt-4"><button type="submit" className="flex-1 bg-orange-500 text-white font-bold py-3 rounded-lg">Guardar</button></div></form></div></div>)}
-      {isFinanceiroModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md"><div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold text-white">Financeiro</h3><button onClick={() => setIsFinanceiroModalOpen(false)} className="text-slate-400"><X className="w-6 h-6" /></button></div><form onSubmit={handleSalvarFinanceiro} className="space-y-4"><div><label className="text-slate-400 text-sm">Preço Venda (R$)</label><input type="number" step="0.01" value={dadosFinanceiros.preco_venda} onChange={(e) => setDadosFinanceiros({...dadosFinanceiros, preco_venda: e.target.value})} className="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white mt-1" /></div><div className="flex gap-3 pt-4"><button type="submit" className="flex-1 bg-emerald-600 text-white font-bold py-3 rounded-lg">Guardar</button></div></form></div></div>)}
+      {isFinanceiroModalOpen && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md"><div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold text-white">Financeiro</h3><button onClick={() => setIsFinanceiroModalOpen(false)} className="text-slate-400"><X className="w-6 h-6" /></button></div><form onSubmit={handleSalvarFinanceiro} className="space-y-4"><div><label className="text-slate-400 text-sm">Preço Venda (R$)</label><input type="text" step="0.01" value={dadosFinanceiros.preco_venda} onChange={(e) => setDadosFinanceiros({...dadosFinanceiros, preco_venda: e.target.value})} className="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white mt-1" /></div><div className="flex gap-3 pt-4"><button type="submit" className="flex-1 bg-emerald-600 text-white font-bold py-3 rounded-lg">Guardar</button></div></form></div></div>)}
       {isConsumoModalOpen && (<div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"><div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md"><div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold text-white">Consumo (kWh)</h3><button onClick={() => setIsConsumoModalOpen(false)} className="text-slate-400"><X className="w-6 h-6" /></button></div><form onSubmit={handleSalvarConsumo} className="flex gap-3"><input type="number" required value={consumoInput} onChange={(e) => setConsumoInput(e.target.value)} className="w-full px-4 py-3 border border-slate-700 rounded-lg bg-slate-800 text-white" /><button type="submit" className="bg-orange-500 text-white px-6 rounded-lg font-medium">Salvar</button></form></div></div>)}
       {isPotenciaModalOpen && (<div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"><div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md"><div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold text-white">Potência (kWp)</h3><button onClick={() => setIsPotenciaModalOpen(false)} className="text-slate-400"><X className="w-6 h-6" /></button></div><form onSubmit={handleSalvarPotencia} className="flex gap-3"><input type="number" step="0.01" required value={potenciaInput} onChange={(e) => setPotenciaInput(e.target.value)} className="w-full px-4 py-3 border border-slate-700 rounded-lg bg-slate-800 text-white" /><button type="submit" className="bg-orange-500 text-white px-6 rounded-lg font-medium">Salvar</button></form></div></div>)}
     </div>

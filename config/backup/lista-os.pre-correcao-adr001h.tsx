@@ -1,4 +1,6 @@
+// app/instalador/dashboard/lista-os.tsx
 'use client'
+
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import type { OsInstalador } from '@/types/enertrack'
@@ -39,8 +41,10 @@ export function ListaOs({
   function handleConcluir(osId: string) {
     setFeedback(null)
     setOsEmProcesso(osId)
+
     startTransition(async () => {
       const resultado = await concluirOsAction(osId)
+
       if (resultado.ok) {
         setOrdens((atual) =>
           atual.map((os) =>
@@ -57,6 +61,7 @@ export function ListaOs({
       } else {
         setFeedback({ tipo: 'erro', texto: resultado.mensagem })
       }
+
       setOsEmProcesso(null)
     })
   }
@@ -69,6 +74,7 @@ export function ListaOs({
           <p className="mt-0.5 text-sm text-slate-300">Bem-vindo, {nome}.</p>
         </div>
       </header>
+
       <section className="mx-auto max-w-4xl px-6 py-6">
         {feedback && (
           <div
@@ -96,13 +102,13 @@ export function ListaOs({
               return (
                 <li
                   key={os.id}
-                  className="rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-sm"
+                  className="rounded-xl border borderslate-800 bg-slate-900 p-5 shadow-sm"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <h2 className="text-base font-bold tracking-wide text-sky-100">
-                        {os.titulo}
-                      </h2>
+  {os.titulo}
+</h2>
                       {os.descricao && (
                         <p className="mt-1 text-sm text-slate-300">{os.descricao}</p>
                       )}
@@ -112,6 +118,7 @@ export function ListaOs({
                           ` · Concluída em ${formatarData(os.data_real_conclusao)}`}
                       </p>
                     </div>
+
                     <span
                       className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${ESTILO_STATUS[os.status]}`}
                     >
@@ -119,25 +126,25 @@ export function ListaOs({
                     </span>
                   </div>
 
-                  <div className="mt-4 flex justify-end gap-3">
-                    <Link 
-                      href={`/instalador/os/${os.projeto_id}`} 
-                      className="rounded-lg border border-sky-400 px-4 py-2 text-sm font-semibold text-sky-300 transition hover:bg-sky-500/10"
-                    >
-                      Ver Projeto
-                    </Link>
-                    
-                    {!concluida && (
-                      <button
-                        type="button"
-                        onClick={() => handleConcluir(os.id)}
-                        disabled={processando}
-                        className="rounded-full border border-emerald-500/40 bg-emerald-500/20 px-2 py-1 text-xs font-semibold text-emerald-300"
-                      >
-                        {processando ? 'Concluindo...' : 'Concluir OS'}
-                      </button>
-                    )}
-                  </div>
+  <div className="mt-4 flex justify-end gap-3">
+  <Link 
+    href={`/instalador/os/${os.projeto_id}`} 
+    className="rounded-lg border border-sky-400 px-4 py-2 text-sm font-semibold text-sky-300 transition hover:bg-sky-500/10"
+  >
+    Ver Projeto
+  </Link>
+  
+  <button
+    type="button"
+    disabled={processando}
+    className="rounded-full border border-emerald-500/40 bg-emerald-500/20 px-2 py-1 text-xs font-semibold text-emerald-300"
+  >
+    {processando ? 'Concluindo...' : 'Concluir OS'}
+  </button>
+</div>
+
+
+
                 </li>
               )
             })}
@@ -147,3 +154,5 @@ export function ListaOs({
     </main>
   )
 }
+
+

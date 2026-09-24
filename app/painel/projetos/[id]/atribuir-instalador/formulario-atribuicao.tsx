@@ -46,10 +46,10 @@ export function FormularioAtribuicao({
   }
 
   return (
-    <main className="min-h-dvh bg-slate-50 px-6 py-8">
+    <main className="min-h-dvh bg-slate-950 px-6 py-8 text-white">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-xl font-semibold text-[#0B3C49]">Atribuir Instalador ao Projeto</h1>
-        <p className="mt-1 text-sm text-slate-500">Vincule um instalador ativo e gere a Ordem de Serviço.</p>
+        <h1 className="text-xl font-semibold text-white">Atribuir Instalador ao Projeto</h1>
+        <p className="mt-1 text-sm text-slate-400">Vincule um instalador ativo e gere a Ordem de Serviço.</p>
 
         {feedback && (
           <div
@@ -64,16 +64,16 @@ export function FormularioAtribuicao({
           </div>
         )}
 
-        <div className="mt-6 space-y-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mt-6 space-y-5 rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
           <div>
-            <label htmlFor="instalador" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="instalador" className="mb-1 block text-sm font-medium text-slate-300">
               Instalador
             </label>
             <select
               id="instalador"
               value={instaladorId}
               onChange={(e) => setInstaladorId(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30"
+              className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-white outline-none transition focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30"
             >
               <option value="">Selecione um instalador</option>
               {instaladores.map((inst) => (
@@ -89,7 +89,7 @@ export function FormularioAtribuicao({
           </div>
 
           <div>
-            <label htmlFor="titulo" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="titulo" className="mb-1 block text-sm font-medium text-slate-300">
               Título da OS
             </label>
             <input
@@ -97,13 +97,13 @@ export function FormularioAtribuicao({
               type="text"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30"
+              className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-white outline-none transition focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30"
               placeholder="Ex.: Instalação de 8 módulos — usina 12kWp"
             />
           </div>
 
           <div>
-            <label htmlFor="descricao" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="descricao" className="mb-1 block text-sm font-medium text-slate-300">
               Descrição (opcional)
             </label>
             <textarea
@@ -111,13 +111,13 @@ export function FormularioAtribuicao({
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
               rows={3}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30"
+              className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-white outline-none transition focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30"
               placeholder="Detalhes operacionais da Ordem de Serviço"
             />
           </div>
 
           <div>
-            <label htmlFor="data" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="data" className="mb-1 block text-sm font-medium text-slate-300">
               Prazo previsto de conclusão
             </label>
             <input
@@ -125,7 +125,7 @@ export function FormularioAtribuicao({
               type="date"
               value={dataPrevista}
               onChange={(e) => setDataPrevista(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30"
+              className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-white outline-none transition focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30"
             />
           </div>
 
